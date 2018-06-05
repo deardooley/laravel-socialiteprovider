@@ -1,5 +1,5 @@
 {
-    "name": "deardooley/laravel-socialiteprovider",
+    "name": "agaveplatform/laravel-socialiteprovider",
     "description": "Agave Platform OAuth2 Provider for Laravel Socialite",
     "license": "BSD 3-Clause",
     "authors": [{
