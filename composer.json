@@ -1,0 +1,18 @@
+{
+    "name": "agaveplatform/agave-socialite-provider",
+    "description": "Agave Platform OAuth2 Provider for Laravel Socialite",
+    "license": "BSD 3-Clause",
+    "authors": [{
+        "name": "Rion Dooley",
+        "email": "dearooley@gmail.com"
+    }],
+    "require": {
+        "php": ">=5.5.9",
+        "socialiteproviders/manager": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SocialiteProviders\\Agave\\": "src/"
+        }
+    }
+}
