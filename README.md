@@ -12,6 +12,8 @@ composer require agaveplatform/agave-socialiteprovider
 
 * Remove `Laravel\Socialite\SocialiteServiceProvider` from your `providers[]` array in `config\app.php` if you have added it already.
 
+If you are using Laravel < 5.6, you must manually add the Service provider.
+
 * Add `\SocialiteProviders\Manager\ServiceProvider::class` to your `providers[]` array in `config\app.php`.
 
 For example:
@@ -19,8 +21,7 @@ For example:
 ``` php
 'providers' => [
     // a whole bunch of providers
-    // remove 'Laravel\Socialite\SocialiteServiceProvider',
-    \SocialiteProviders\Manager\ServiceProvider::class, // add
+    // remove 'Laravel\Socialite\SocialiteServiceProvider', 
 ];
 ```
 
@@ -30,9 +31,7 @@ For example:
 
 * Add `SocialiteProviders\Manager\SocialiteWasCalled` event to your `listen[]` array  in `app/Providers/EventServiceProvider`.
 
-* Add your listeners (i.e. the ones from the providers) to the `SocialiteProviders\Manager\SocialiteWasCalled[]` that you just created.
-
-* The listener that you add for this provider is `'SocialiteProviders\\Agave\\AgaveExtendSocialite@handle',`.
+* Add the `'SocialiteProviders\\Agave\\AgaveExtendSocialite@handle',` listener to the `SocialiteProviders\Manager\SocialiteWasCalled[]`.
 
 * Note: You do not need to add anything for the built-in socialite providers unless you override them with your own providers.
 
@@ -46,7 +45,9 @@ For example:
  */
 protected $listen = [
     \SocialiteProviders\Manager\SocialiteWasCalled::class => [
-        // add your listeners (aka providers) here
+        // Other SocialiteProviders appear here
+        ...
+        // add the Agave SocialiteProvider here
         'SocialiteProviders\\Agave\\AgaveExtendSocialite@handle',
     ],
 ];
@@ -64,10 +65,13 @@ You will need to add an entry to the services configuration file so that after c
 #### Add to `config/services.php`.
 
 ```php
-'gitlab' => [
-    'client_id' => env('AGAVE_CLIENT_KEY'),
+'agave' => [
+    'active'        => env('AGAVE_ACTIVE'),
+    'client_id'     => env('AGAVE_CLIENT_KEY'),
     'client_secret' => env('AGAVE_CLIENT_SECRET'),
-    'redirect' => env('AGAVE_REDIRECT_URI')
+    'redirect'      => env('AGAVE_CLIENT_REDIRECT_URL'),
+    'instance_uri'  => env('AGAVE_BASE_URL'),
+    'scopes'        => ['PRODUCTION'],
 ],
 ```
 
@@ -78,7 +82,7 @@ You will need to add an entry to the services configuration file so that after c
 * You should now be able to use it like you would regularly use Socialite (assuming you have the facade installed):
 
 ```php
-return Socialite::with('Agave')->redirect();
+return Socialite::with('agave')->redirect();
 ```
 
 ### Lumen Support
@@ -98,10 +102,10 @@ Also, configs cannot be parsed from the `services[]` in Lumen.  You can only set
 
 ```php
 // to turn off stateless
-return Socialite::with('Agave')->stateless(false)->redirect();
+return Socialite::with('agave')->stateless(false)->redirect();
 
 // to use stateless
-return Socialite::with('Agave')->stateless()->redirect();
+return Socialite::with('agave')->stateless()->redirect();
 ```
 
 ### Overriding a config
@@ -109,12 +113,12 @@ return Socialite::with('Agave')->stateless()->redirect();
 If you need to override the provider's environment or config variables dynamically anywhere in your application, you may use the following:
 
 ```php
-$clientId = "secret";
-$clientSecret = "secret";
-$redirectUrl = "http://yourdomain.com/api/redirect";
-$additionalProviderConfig = ['site' => 'meta.stackoverflow.com'];
+$clientId = "agave client key";
+$clientSecret = "agave client secret";
+$redirectUrl = url('/login/agave/callback');
+$additionalProviderConfig = ['instance_uri' => 'https://public.agaveapi.co'];
 $config = new \SocialiteProviders\Manager\Config($clientId, $clientSecret, $redirectUrl, $additionalProviderConfig);
-return Socialite::with('GitLab')->setConfig($config)->redirect();
+return Socialite::with('agave')->setConfig($config)->redirect();
 ```
 
 ### Retrieving the Access Token Response Body
@@ -126,7 +130,7 @@ may contain items such as a `refresh_token`.
 You can get the access token response body, after you called the `user()` method in Socialite, by accessing the property `$user->accessTokenResponseBody`;
 
 ```php
-$user = Socialite::driver('GitLab')->user();
+$user = Socialite::driver('agave')->user();
 $accessTokenResponseBody = $user->accessTokenResponseBody;
 ```
 
